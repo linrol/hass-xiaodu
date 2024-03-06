@@ -92,11 +92,11 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
         self._is_closed = False
         self.async_write_ha_state()
 
-    async def async_set_cover_position(self, **kwargs: Any) -> None:
-        if kwargs['position'] > 50:
-            await self.async_close_cover()
-        else:
-            await self.async_open_cover()
+    # async def async_set_cover_position(self, **kwargs: Any) -> None:
+    #     if kwargs['position'] > 50:
+    #         await self.async_close_cover()
+    #     else:
+    #         await self.async_open_cover()
 
 
 def parse_data(coordinator: XiaoDuCoordinator) -> list[XiaoDuCurtain]:
