@@ -44,15 +44,15 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
     def is_closed(self):
         return self._is_closed
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        appliances = self.coordinator.data['data']["appliances"]
-        if len(appliances) > 0:
-            for app in appliances:
-                if self._attr_unique_id == app['applianceId']:
-                    self._is_closed = app['stateSetting']['turnOnState']['value'] == 'OFF'
-        _LOGGER.info("cover is closed: {}".format(self._is_closed))
-        self.async_write_ha_state()
+    # @callback
+    # def _handle_coordinator_update(self) -> None:
+    #     appliances = self.coordinator.data['data']["appliances"]
+    #     if len(appliances) > 0:
+    #         for app in appliances:
+    #             if self._attr_unique_id == app['applianceId']:
+    #                 self._is_closed = app['stateSetting']['turnOnState']['value'] == 'OFF'
+    #     _LOGGER.info("cover is closed: {}".format(self._is_closed))
+    #     self.async_write_ha_state()
 
     def open_cover(self, **kwargs: Any) -> None:
         hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
@@ -77,15 +77,15 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         await self.hass.async_add_executor_job(self.open_cover)
-        await self.coordinator.async_request_refresh()
+        # await self.coordinator.async_request_refresh()
 
     async def async_close_cover(self, **kwargs: Any) -> None:
         await self.hass.async_add_executor_job(self.close_cover)
-        await self.coordinator.async_request_refresh()
+        # await self.coordinator.async_request_refresh()
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
         await self.hass.async_add_executor_job(self.stop_cover)
-        await self.coordinator.async_request_refresh()
+        # await self.coordinator.async_request_refresh()
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         if kwargs['position'] > 50:
