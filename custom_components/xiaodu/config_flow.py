@@ -34,8 +34,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 # 校验账号密码是否正确
                 await validate_input(self.hass, user_input)
-                return self.async_create_entry(title="XiaoDuCookie",
-                                               data={'cookie': user_input})
+                return self.async_create_entry(title="XiaoDuCookie", data=user_input)
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
