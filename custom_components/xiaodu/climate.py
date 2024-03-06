@@ -22,14 +22,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry,async
 class XiaoDuClimate(ClimateEntity):
 
     def __init__(self, application_id, appliance_type, name_type, bot_id,bot_name) -> None:
+        self._update_value()
+
         self._appliance_type = appliance_type
         self._attr_unique_id = application_id
         self._attr_name = name_type
         self.bot_id = bot_id
         self.bot_name = bot_name
         self._attr_icon = 'mdi:air-conditioner'
-
-
 
         self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._attr_hvac_modes = [
@@ -60,7 +60,11 @@ class XiaoDuClimate(ClimateEntity):
                                         | ClimateEntityFeature.FAN_MODE \
                                         | ClimateEntityFeature.SWING_MODE
 
+
     def _update_value(self):
+        self._attr_hvac_mode = HVACMode.OFF
+        self._attr_fan_mode = FAN_OFF
+        self._attr_swing_mode = SWING_OFF
         pass
 
     def set_hvac_mode(self, hvac_mode: HVACMode) -> None:
