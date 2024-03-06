@@ -27,7 +27,7 @@ class XiaoDuHub:
         response = requests.get(HOST + api, headers=headers)
         if response.status_code == 200:
             json = response.json()
-            _LOGGER.info("request \n %s \n %s \n %s \t %s", HOST + api, '', response.status_code, response.json())
+            # _LOGGER.info("request \n %s \n %s \n %s \t %s", HOST + api, '', response.status_code, response.json())
             return json
         else:
             _LOGGER.error("请求小度出错", response)

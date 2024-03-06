@@ -3,8 +3,7 @@ from typing import Any
 
 from homeassistant.components.cover import CoverEntity, CoverDeviceClass, CoverEntityFeature
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
@@ -29,7 +28,7 @@ async def async_setup_entry(
 class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
     def __init__(self, coordinator, application_id, appliance_type, name_type, current_cover_position, bot_id, bot_name) -> None:
         super().__init__(coordinator)
-        self._is_closed = None
+        self._is_closed = current_cover_position == 100
         self._appliance_type = appliance_type
         self._attr_unique_id = application_id
         self._attr_name = name_type
@@ -40,7 +39,6 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
         if appliance_type == 'CURTAIN':
             self._attr_device_class = CoverDeviceClass.CURTAIN
             self._attr_supported_features = CoverEntityFeature.SET_POSITION
-        self._attr_is_closed = current_cover_position == 100
 
     @property
     def is_closed(self):
@@ -53,6 +51,7 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
             for app in appliances:
                 if self._attr_unique_id == app['applianceId']:
                     self._is_closed = app['stateSetting']['turnOnState']['value'] == 'OFF'
+        _LOGGER.info("cover is closed: {}".format(self._is_closed))
         self.async_write_ha_state()
 
     def open_cover(self, **kwargs: Any) -> None:
@@ -69,6 +68,13 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
         self._is_closed = True
         self.async_write_ha_state()
 
+    def stop_cover(self, **kwargs: Any) -> None:
+        hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
+        hub.curtain_stop(self.unique_id)
+        _LOGGER.info("stop_cover")
+        self._is_closed = False
+        self.async_write_ha_state()
+
     async def async_open_cover(self, **kwargs: Any) -> None:
         await self.hass.async_add_executor_job(self.open_cover)
         await self.coordinator.async_request_refresh()
@@ -77,16 +83,15 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
         await self.hass.async_add_executor_job(self.close_cover)
         await self.coordinator.async_request_refresh()
 
-    def set_cover_position(self, **kwargs: Any) -> None:
-        if kwargs['position'] > 50:
-            self.close_cover()
-        else:
-            self.open_cover()
+    async def async_stop_cover(self, **kwargs: Any) -> None:
+        await self.hass.async_add_executor_job(self.stop_cover)
+        await self.coordinator.async_request_refresh()
 
-    def stop_cover(self, **kwargs: Any) -> None:
-        hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
-        hub.curtain_stop(self.unique_id)
-        _LOGGER.info("stop_cover")
+    async def async_set_cover_position(self, **kwargs: Any) -> None:
+        if kwargs['position'] > 50:
+            await self.async_close_cover()
+        else:
+            await self.async_open_cover()
 
 
 def parse_data(coordinator: XiaoDuCoordinator) -> list[XiaoDuCurtain]:
