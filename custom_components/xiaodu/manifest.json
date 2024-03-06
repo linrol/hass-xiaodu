@@ -2,14 +2,14 @@
   "domain": "xiaodu",
   "name": "XiaoDu API",
   "config_flow": true,
-  "documentation": "https://github.com/apgmer/hass-xiaodu",
+  "documentation": "https://github.com/linrol/hass-xiaodu",
   "requirements": [],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
   "dependencies": [],
   "codeowners": [
-    "@apgmer"
+    "@linrol"
   ],
   "iot_class": "cloud_polling",
   "version": "0.1.0"
