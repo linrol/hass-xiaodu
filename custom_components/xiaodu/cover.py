@@ -75,24 +75,6 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
         self._is_closed = False
         self.async_write_ha_state()
 
-    async def async_open_cover(self, **kwargs: Any) -> None:
-        await self.hass.async_add_executor_job(self.open_cover)
-        # await self.coordinator.async_request_refresh()
-
-    async def async_close_cover(self, **kwargs: Any) -> None:
-        await self.hass.async_add_executor_job(self.close_cover)
-        # await self.coordinator.async_request_refresh()
-
-    async def async_stop_cover(self, **kwargs: Any) -> None:
-        await self.hass.async_add_executor_job(self.stop_cover)
-        # await self.coordinator.async_request_refresh()
-
-    async def async_set_cover_position(self, **kwargs: Any) -> None:
-        if kwargs['position'] > 50:
-            await self.async_close_cover()
-        else:
-            await self.async_open_cover()
-
 
 def parse_data(coordinator: XiaoDuCoordinator) -> list[XiaoDuCurtain]:
     appliances = coordinator.data['data']['appliances']
