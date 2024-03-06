@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -59,7 +59,7 @@ class XiaoDuSwitch(CoordinatorEntity, SwitchEntity):
         self.async_write_ha_state()
 
     @property
-    def is_on(self) -> bool | None:
+    def is_on(self) -> Optional[bool]:
         return self._if_on
 
     def __init__(self, coordinator, application_id, appliance_type, name_type, if_on, bot_id, bot_name) -> None:

@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SWITCH, Platform.COVER, Platform.BUTTON]
 
 
-async def async_setup_entry(hass, entry):
+async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
     """Set up xiaodu api from a config entry."""
 
     hass.data.setdefault(DOMAIN, {})
@@ -26,20 +26,19 @@ async def async_setup_entry(hass, entry):
     # TODO 3. Store an API object for your platforms to access
     # hass.data[DOMAIN][entry.entry_id] = MyApi(...)
 
-    hub = XiaoDuHub(entry.data['cookie'], hass)
+    cookie = config.data.get('cookie', '')
+    cookie2 = config.data['cookie']
+    _LOGGER.info("cookie:{}".format(cookie))
+    _LOGGER.info("cookie2:{}".format(cookie2))
 
-    coordinator = XiaoDuCoordinator(hass, hub)
-    hass.data[DOMAIN][entry.entry_id] = coordinator
-
+    hub = XiaoDuHub(cookie, hass)
+    coord = XiaoDuCoordinator(hass, hub)
+    hass.data[DOMAIN][config.entry_id] = coord
     hass.data[DOMAIN]['hub'] = hub
 
     # await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    await coordinator.async_config_entry_first_refresh()
-
-    await hass.config_entries.async_forward_entry_setups(
-        entry, [platform for platform in PLATFORMS if platform != Platform.NOTIFY]
-    )
+    await coord.async_config_entry_first_refresh()
+    await hass.config_entries.async_forward_entry_setups(config, [platform for platform in PLATFORMS if platform != Platform.NOTIFY])
 
     # job_ = await hass.async_add_executor_job()
     # print("")
