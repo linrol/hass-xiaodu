@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.const import STATE_CLOSED, STATE_OPEN
 from .const import DOMAIN
 from .coordinator import XiaoDuCoordinator
 from .xiaodu import XiaoDuHub
@@ -44,6 +45,13 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
     def is_closed(self):
         return self._is_closed
 
+    @property
+    def state(self):
+        """Return the state of the cover."""
+        if self._is_closed is None:
+            return None
+        return STATE_CLOSED if self._is_closed else STATE_OPEN
+
     # @callback
     # def _handle_coordinator_update(self) -> None:
     #     appliances = self.coordinator.data['data']["appliances"]
@@ -57,21 +65,21 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
     async def async_open_cover(self, **kwargs: Any) -> None:
         _LOGGER.info("open_cover")
         hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
-        await hub.curtain_toggle(self._attr_unique_id, "TurnOnRequest")
+        hub.curtain_toggle(self._attr_unique_id, "TurnOnRequest")
         self._is_closed = False
         self.async_write_ha_state()
 
     async def async_close_cover(self, **kwargs: Any) -> None:
         _LOGGER.info("close_cover")
         hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
-        await hub.curtain_toggle(self._attr_unique_id, "TurnOffRequest")
+        hub.curtain_toggle(self._attr_unique_id, "TurnOffRequest")
         self._is_closed = True
         self.async_write_ha_state()
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
         _LOGGER.info("stop_cover")
         hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
-        await hub.curtain_stop(self.unique_id)
+        hub.curtain_stop(self.unique_id)
         self._is_closed = False
         self.async_write_ha_state()
 
