@@ -62,24 +62,33 @@ class XiaoDuCurtain(CoordinatorEntity, CoverEntity):
     #     _LOGGER.info("cover is closed: {}".format(self._is_closed))
     #     self.async_write_ha_state()
 
-    async def async_open_cover(self, **kwargs: Any) -> None:
-        _LOGGER.info("open_cover")
+    def open(self, **kwargs: Any) -> None:
         hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
         hub.curtain_toggle(self._attr_unique_id, "TurnOnRequest")
+
+    def close(self, **kwargs: Any) -> None:
+        hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
+        hub.curtain_toggle(self._attr_unique_id, "TurnOffRequest")
+
+    def stop(self, **kwargs: Any) -> None:
+        hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
+        hub.curtain_stop(self.unique_id)
+
+    async def async_open_cover(self, **kwargs: Any) -> None:
+        _LOGGER.info("open_cover")
+        await self.hass.async_add_executor_job(self.open)
         self._is_closed = False
         self.async_write_ha_state()
 
     async def async_close_cover(self, **kwargs: Any) -> None:
         _LOGGER.info("close_cover")
-        hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
-        hub.curtain_toggle(self._attr_unique_id, "TurnOffRequest")
+        await self.hass.async_add_executor_job(self.close)
         self._is_closed = True
         self.async_write_ha_state()
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
         _LOGGER.info("stop_cover")
-        hub: XiaoDuHub = self.hass.data[DOMAIN]['hub']
-        hub.curtain_stop(self.unique_id)
+        await self.hass.async_add_executor_job(self.stop)
         self._is_closed = False
         self.async_write_ha_state()
 
